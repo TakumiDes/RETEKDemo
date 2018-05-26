@@ -6,6 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using RETEKDemo.DataProvider;
 using Swashbuckle.AspNetCore.Swagger;
 using FluentValidation.AspNetCore;
+using System.Reflection;
+using System;
+using System.IO;
 
 namespace RETEKDemo
 {
@@ -31,6 +34,9 @@ namespace RETEKDemo
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "RETEK Demo API", Version = "v1" });
+
+                var fileName = this.GetType().GetTypeInfo().Module.Name.Replace(".dll", ".xml").Replace(".exe", ".xml");
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, fileName));
             });
         }
 
