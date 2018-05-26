@@ -32,11 +32,16 @@ namespace RETEKDemo.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("message")]
-        public async Task<MessageResponseDto> Message([FromBody]MessageRequestDto message) {
+        public async Task<IActionResult> Message([FromBody]MessageRequestDto message) {
 
+            if (message.ParentId.HasValue) {
+                bool isParentIdCorrect = await _messageDataProvider.IsCorrectParentId(message.ParentId.Value);
+                if (!isParentIdCorrect) {
+                    return BadRequest($"Invalid ParentId: {message.ParentId.Value}");
+                }
+            }
             var inseredMessage = await _messageDataProvider.AddMessage(_mapper.Map<MessageRequestDto, Messages>(message));
-
-            return _mapper.Map<Messages, MessageResponseDto>(inseredMessage);
+            return Ok(_mapper.Map<Messages, MessageResponseDto>(inseredMessage));
         }
 
         /// <summary>
@@ -46,11 +51,10 @@ namespace RETEKDemo.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("tree/{id}")]
-        public async Task<IEnumerable<MessageResponseDto>> GetMessages([FromRoute]int id)
+        public async Task<IActionResult> GetMessages([FromRoute]int id)
         {
             var messages = await _messageDataProvider.GetMessages(id);
-
-            return _mapper.Map<List<MessageResponseDto>>(messages);
+            return Ok(_mapper.Map<List<MessageResponseDto>>(messages));
         }
     }
 }

@@ -14,6 +14,16 @@ namespace RETEKDemo.DataProvider
 
         private SqlConnection sqlConnection;
 
+        public async Task<bool> IsCorrectParentId(int parentId)
+        {
+            using (var sqlConnection = new SqlConnection(connectionString)) {
+                var sql = @"SELECT COUNT(*) FROM dbo.messages WHERE id = @parentId";
+                int itemCount = await sqlConnection.ExecuteScalarAsync<int>(sql, new { parentId });
+                if (itemCount > 0)
+                    return true;
+                return false;
+            }
+        }
 
         public async Task<Messages> AddMessage(Messages message)
         {
